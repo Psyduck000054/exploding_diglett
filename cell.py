@@ -5,41 +5,59 @@ from constants import *
 import random
 
 class Cell (pygame.sprite.Sprite):
+    #DEFINITION
     def __init__ (self, tl_x, tl_y, side_length, value, font):
         self.tl_x = tl_x
         self.tl_y = tl_y
         self.side_length = side_length
         self.value = value
 
+        #position in chunk 
+        self.cx = 0
+        self.cy = 0
+        self.rect_color = pygame.Color(0, 0, 0)
         self.font = font
-        self.text_surf = self.font.render(str(self.value), True, "white")
+
+        self.text_surf = self.font.render(str(self.value), True, "black")
         self.text_rect = self.text_surf.get_rect(center=(self.tl_x + self.side_length // 2, 
                                                          self.tl_y + self.side_length // 2))
-
+        
+        #inherit from sprite.sprite
         if hasattr(self, "containers"):
             super().__init__(self.containers)
         else:
             super().__init__()
     
     def draw (self, screen):
-        pygame.draw.rect(screen, "white", (self.tl_x, self.tl_y, self.side_length, self.side_length), 2)
+        pygame.draw.rect(screen, self.rect_color, (self.tl_x, self.tl_y, self.side_length, self.side_length))
+        pygame.draw.rect(screen, "white", (self.tl_x, self.tl_y, self.side_length, self.side_length), 1)
         screen.blit(self.text_surf, self.text_rect)
 
     def update_value(self, new_value):
         self.value = new_value
-        self.text_surf = self.font.render(str(self.value), True, "white")
+        
+        #visual stuff
+
+        #config1: rainbow
+        hue = int(self.value * 280)
+        self.rect_color.hsla = (hue, 100, 50, 100)
+
+        #config2: map
+        """if self.value < 0.2:
+            self.rect_color = "blue"
+        elif self.value < 0.3:
+            self.rect_color = "lightblue"
+        elif self.value < 0.5:
+            self.rect_color = "lightgreen"
+        elif self.value < 0.7:
+            self.rect_color = "lightyellow"
+        elif self.value < 0.8:
+            self.rect_color = "orange"
+        else:
+            self.rect_color = "red"""
+
+        self.text_surf = self.font.render(str(self.value), True, "black")
         self.text_rect = self.text_surf.get_rect(
             center=(self.tl_x + self.side_length // 2, 
                     self.tl_y + self.side_length // 2)
     )
-        
-    def random_switch (self):
-        """ran = random.randint (1, 100)
-
-        if ran <= 1:
-            self.update_value(random.randint (1, 16))"""
-        return
-
-    def update (self):
-        pass
-

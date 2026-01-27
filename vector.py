@@ -14,6 +14,17 @@ class Unit_Vector(pygame.sprite.Sprite):
             super().__init__(self.containers)
         else:
             super().__init__()
+        
+        #radian form to use 
+        self.rad = math.radians(self.bearing)
+
+        #vector components
+        self.vx = math.sin(self.rad)
+        self.vy = math.cos(self.rad)
+
+        #position in chunk
+        self.cx = 0
+        self.cy = 0
 
     def draw(self, screen):
         rad = math.radians(self.bearing)
@@ -22,13 +33,4 @@ class Unit_Vector(pygame.sprite.Sprite):
         y_head = self.y_base - VECTOR_LENGTH * math.cos(rad)
 
         pygame.draw.line(screen, "magenta", (self.x_base, self.y_base), (x_head, y_head), 2)
-        pygame.draw.circle(screen, "magenta", (int(x_head), int(y_head)), 4)
-
-    def update(self):
-        pass
-        
-    def random_switch(self, screen=None):
-        """ran = random.randint(1, 100)
-        if ran <= 1:
-           self.bearing = random.randint(0, 359)"""
-        return
+        pygame.draw.circle(screen, "magenta", (int(x_head), int(y_head)), 2)
