@@ -30,8 +30,10 @@ class Cell (pygame.sprite.Sprite):
     
     def draw (self, screen):
         pygame.draw.rect(screen, self.rect_color, (self.tl_x, self.tl_y, self.side_length, self.side_length))
-        pygame.draw.rect(screen, "white", (self.tl_x, self.tl_y, self.side_length, self.side_length), 1)
+        #pygame.draw.rect(screen, "white", (self.tl_x, self.tl_y, self.side_length, self.side_length), 1)
+
         screen.blit(self.text_surf, self.text_rect)
+
 
     def update_value(self, new_value):
         self.value = new_value
@@ -39,22 +41,24 @@ class Cell (pygame.sprite.Sprite):
         #visual stuff
 
         #config1: rainbow
-        hue = int(self.value * 280)
-        self.rect_color.hsla = (hue, 100, 50, 100)
+        """hue = int(self.value * 280)
+        self.rect_color.hsla = (hue, 100, 50, 100)"""
 
         #config2: map
-        """if self.value < 0.2:
+        if self.value < 0.15:
+            self.rect_color = "violet"
+        elif self.value < 0.25:
             self.rect_color = "blue"
-        elif self.value < 0.3:
-            self.rect_color = "lightblue"
-        elif self.value < 0.5:
+        elif self.value < 0.35:
+            self.rect_color = "green"
+        elif self.value < 0.65:
             self.rect_color = "lightgreen"
-        elif self.value < 0.7:
-            self.rect_color = "lightyellow"
-        elif self.value < 0.8:
+        elif self.value < 0.75:
+            self.rect_color = "yellow"
+        elif self.value < 0.85:
             self.rect_color = "orange"
         else:
-            self.rect_color = "red"""
+            self.rect_color = "red"
 
         self.text_surf = self.font.render(str(self.value), True, "black")
         self.text_rect = self.text_surf.get_rect(

@@ -13,7 +13,7 @@ def main ():
     dt = 0
 
     pygame.font.init()
-    font = pygame.font.SysFont("Candara", 12)
+    font = pygame.font.SysFont("Candara", 0)
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -24,7 +24,6 @@ def main ():
 
     cellList = []
     vectorList = []
-    
 
     def draw_grid(size_x, size_y):
         # init settings here
@@ -41,86 +40,106 @@ def main ():
                 x = start_x + (i * SIDE_LENGTH)
                 y = start_y + (j * SIDE_LENGTH)
                 if (i != size_x and j != size_y):
-                    cellCol.append(Cell(x, y, SIDE_LENGTH, random.randint(-100, 100)/100, font))
-                if (i % CHUNK_SIZE == 0 and j % CHUNK_SIZE == 0):
+                    cellCol.append(Cell(x, y, SIDE_LENGTH, 0, font))
+                if (i % MIN_CHUNK_SIZE == 0 and j % MIN_CHUNK_SIZE == 0):
                     vectorCol.append(Unit_Vector(x, y, random.randint(0, 359)))
-            cellList.append(cellCol)
+            if i < size_x:
+                cellList.append(cellCol)
             cellCol = []
-            if (i % CHUNK_SIZE == 0):
+            if (i % MIN_CHUNK_SIZE == 0):
                 vectorList.append(vectorCol)
             vectorCol = []
 
         # test print here
         for i in range (size_x):
             for j in range (size_y):
-                cellList[i][j].cx = 1/(CHUNK_SIZE * 2) + 1/CHUNK_SIZE * j%CHUNK_SIZE
-                cellList[i][j].cy = 1/(CHUNK_SIZE * 2) + 1/CHUNK_SIZE * i%CHUNK_SIZE
+                cellList[i][j].cx = i
+                cellList[i][j].cy = j
 
-        vectorList_len_x = size_x//CHUNK_SIZE + (size_x%CHUNK_SIZE == 0)
-        vectorList_len_y = size_y//CHUNK_SIZE + (size_y%CHUNK_SIZE == 0)
+        vectorList_len_x = len(vectorList)
+        vectorList_len_y = len(vectorList[0])
 
         for i in range (vectorList_len_x):
             for j in range (vectorList_len_y):
-                vectorList[i][j].cx = j
-                vectorList[i][j].cy = i
+                vectorList[i][j].cx = i
+                vectorList[i][j].cy = j
                 pass
     draw_grid(SIZE_X, SIZE_Y)
+
+    #OCTAVE NOISE GENERATOR | USE_PREDEFINED ON FOR THE FIRST TIME ONLY | RETURNS A TABLE
+    def get_octave_noise(chunk_size, use_predefined=False):
+        v_cols = (SIZE_X // chunk_size) + 1
+        v_rows = (SIZE_Y // chunk_size) + 1
+        gradients = []
+        
+        if use_predefined:
+            for i in range(v_cols):
+                row = []
+                for j in range(v_rows):
+                    row.append((vectorList[i][j].vx, vectorList[i][j].vy))
+                gradients.append(row)
+        else:
+            for i in range(v_cols):
+                row = []
+                for j in range(v_rows):
+                    angle = math.radians(random.randint(0, 359))
+                    row.append((math.sin(angle), math.cos(angle)))
+                gradients.append(row)
+
+        # MATH [LERP + SMOOTHSTEP]
+        noise_map = [[0 for _ in range(SIZE_Y)] for _ in range(SIZE_X)]
+        for i in range(SIZE_X):
+            for j in range(SIZE_Y):
+
+                x = i / chunk_size
+                y = j / chunk_size
+                
+                x0 = int(x)
+                x1 = x0 + 1
+                y0 = int(y)
+                y1 = y0 + 1
+
+                sx = smoothstep(x - x0)
+                sy = smoothstep(y - y0)
+
+                n0 = entropy_calc(dot_product(x - x0, y - y0, gradients[x0][y0][0], gradients[x0][y0][1]), ENTROPY)
+                n1 = entropy_calc(dot_product(x - x1, y - y0, gradients[x1][y0][0], gradients[x1][y0][1]), ENTROPY)
+                ix0 = lerp(n0, n1, sx)
+
+                n0 = entropy_calc(dot_product(x - x0, y - y1, gradients[x0][y1][0], gradients[x0][y1][1]), ENTROPY)
+                n1 = entropy_calc(dot_product(x - x1, y - y1, gradients[x1][y1][0], gradients[x1][y1][1]), ENTROPY)
+                ix1 = lerp(n0, n1, sx)
+
+                noise_map[i][j] = lerp(ix0, ix1, sy)
+        return noise_map
     
-    # CORNER NOISE STORAGE 3D ARRAY
-    #3d array
-    noise_cube = []
-    #2d subarray
-    noise_table = []
-    #1d subarray
-    noise_line = []
-    #the NW, NE, SW, SE
-    directions = [[0, 0], [1, 0], [0, 1], [1, 1]]
+    #FRACTAL NOISE CALCULATOR
+    order = round(math.log(CHUNK_SIZE / MIN_CHUNK_SIZE, SCALE)) + 1
+    
+    # storage for generated octaves
+    generated_octaves = []
+    for k in range(order):
+        current_chunk_size = MIN_CHUNK_SIZE * pow(SCALE, k)
+        is_secondary = (k > 0)
+        octave_map = get_octave_noise(current_chunk_size, is_secondary)
+        generated_octaves.append(octave_map)
 
-    for pair in directions:
-        for i in range (SIZE_X):
-            for j in range (SIZE_Y):
-                x_index = i // CHUNK_SIZE + pair[0]
-                y_index = j // CHUNK_SIZE + pair[1]
-
-                #components of vector from cell to corner
-                cell_to_corner_x = vectorList[x_index][y_index].cx - cellList[i][j].cx
-                cell_to_corner_y = vectorList[x_index][y_index].cy - cellList[i][j].cy
-
-                #dot product
-                noise_val = round(dot_product(cell_to_corner_x, cell_to_corner_y, vectorList[x_index][y_index].vx, vectorList[x_index][y_index].vy), 2)
-
-                #range manipulation
-                noise_val *= ENTROPY
-                if noise_val > 1:
-                    noise_val = 1
-                if noise_val < -1:
-                    noise_val = -1
-                noise_line.append(noise_val)
-
-            noise_table.append(noise_line)
-            noise_line = []
-        noise_cube.append(noise_table)
-        noise_table = []
-
-    #MATH [LERP + SMOOTHSTEP]
-    for i in range (SIZE_X):
-        for j in range (SIZE_Y):
-            #relative position in the chunk
-            rel_x = smoothstep(cellList[i][j].cx % 1)
-            rel_y = smoothstep(cellList[i][j].cy % 1)
-
-            #NW
-            n00 = noise_cube[0][i][j]
-            #SW
-            n01 = noise_cube[1][i][j]
-            #NE
-            n10 = noise_cube[2][i][j]
-            #SE
-            n11 = noise_cube[3][i][j]
-
-            final_noise = round((lerp(lerp(n00, n10, rel_x), lerp(n01, n11, rel_x), rel_y) + 1) / 2, 2)
-
+    #calc loop
+    for i in range(SIZE_X):
+        for j in range(SIZE_Y):
+            final_noise = 0
+            total_weight = 0
+            
+            for k in range(order):
+                val = (generated_octaves[k][i][j] + 1) / 2
+                
+                weight = pow(ROUGHNESS, k)
+                final_noise += val * weight
+                total_weight += weight
+            
+            final_noise = round(final_noise / total_weight, 2)
             cellList[i][j].update_value(final_noise)
+            
     # RUNNING
     running = True
     while running:
