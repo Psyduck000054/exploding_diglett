@@ -3,7 +3,7 @@ import pygame
 def print_1d (arr):
     print ("[", end = " ")
     for d0 in arr:
-        print (d0, end = " ")
+        print (d0, end = ", ")
     print ("]")
 
 

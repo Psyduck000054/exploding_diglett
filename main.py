@@ -25,19 +25,22 @@ def main ():
     cellList = []
     vectorList = []
     
-    def draw_grid(size):
+
+    def draw_grid(size_x, size_y):
         # init settings here
-        grid_total_size = size * SIDE_LENGTH
-        start_x = (SCREEN_WIDTH // 2) - (grid_total_size // 2)
-        start_y = (SCREEN_HEIGHT // 2) - (grid_total_size // 2)
+        grid_total_size_x = size_x * SIDE_LENGTH
+        grid_total_size_y = size_y * SIDE_LENGTH
+
+        start_x = (SCREEN_WIDTH // 2) - (grid_total_size_x // 2)
+        start_y = (SCREEN_HEIGHT // 2) - (grid_total_size_y // 2)
         cellCol = []
         vectorCol = []
         # add items here
-        for i in range(size + 1):
-            for j in range(size + 1):
+        for i in range(size_x + 1):
+            for j in range(size_y + 1):
                 x = start_x + (i * SIDE_LENGTH)
                 y = start_y + (j * SIDE_LENGTH)
-                if (i != size and j != size):
+                if (i != size_x and j != size_y):
                     cellCol.append(Cell(x, y, SIDE_LENGTH, random.randint(-100, 100)/100, font))
                 if (i % CHUNK_SIZE == 0 and j % CHUNK_SIZE == 0):
                     vectorCol.append(Unit_Vector(x, y, random.randint(0, 359)))
@@ -48,19 +51,20 @@ def main ():
             vectorCol = []
 
         # test print here
-        for i in range (size):
-            for j in range (size):
+        for i in range (size_x):
+            for j in range (size_y):
                 cellList[i][j].cx = 1/(CHUNK_SIZE * 2) + 1/CHUNK_SIZE * j%CHUNK_SIZE
                 cellList[i][j].cy = 1/(CHUNK_SIZE * 2) + 1/CHUNK_SIZE * i%CHUNK_SIZE
 
-        vectorList_len = size//CHUNK_SIZE + (size%CHUNK_SIZE == 0)
+        vectorList_len_x = size_x//CHUNK_SIZE + (size_x%CHUNK_SIZE == 0)
+        vectorList_len_y = size_y//CHUNK_SIZE + (size_y%CHUNK_SIZE == 0)
 
-        for i in range (vectorList_len):
-            for j in range (vectorList_len):
+        for i in range (vectorList_len_x):
+            for j in range (vectorList_len_y):
                 vectorList[i][j].cx = j
                 vectorList[i][j].cy = i
                 pass
-    draw_grid(SIZE)
+    draw_grid(SIZE_X, SIZE_Y)
     
     # CORNER NOISE STORAGE 3D ARRAY
     #3d array
@@ -73,8 +77,8 @@ def main ():
     directions = [[0, 0], [1, 0], [0, 1], [1, 1]]
 
     for pair in directions:
-        for i in range (SIZE):
-            for j in range (SIZE):
+        for i in range (SIZE_X):
+            for j in range (SIZE_Y):
                 x_index = i // CHUNK_SIZE + pair[0]
                 y_index = j // CHUNK_SIZE + pair[1]
 
@@ -84,14 +88,13 @@ def main ():
 
                 #dot product
                 noise_val = round(dot_product(cell_to_corner_x, cell_to_corner_y, vectorList[x_index][y_index].vx, vectorList[x_index][y_index].vy), 2)
-                noise_val *= ENTROPY
 
+                #range manipulation
+                noise_val *= ENTROPY
                 if noise_val > 1:
                     noise_val = 1
-                
                 if noise_val < -1:
                     noise_val = -1
-
                 noise_line.append(noise_val)
 
             noise_table.append(noise_line)
@@ -100,8 +103,8 @@ def main ():
         noise_table = []
 
     #MATH [LERP + SMOOTHSTEP]
-    for i in range (SIZE):
-        for j in range (SIZE):
+    for i in range (SIZE_X):
+        for j in range (SIZE_Y):
             #relative position in the chunk
             rel_x = smoothstep(cellList[i][j].cx % 1)
             rel_y = smoothstep(cellList[i][j].cy % 1)
