@@ -10,10 +10,9 @@ def main ():
     pygame.init()
 
     clock = pygame.time.Clock()
-    dt = 0
 
     pygame.font.init()
-    font = pygame.font.SysFont("Candara", 0)
+    font = pygame.font.SysFont("Candara", 6)
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -25,6 +24,7 @@ def main ():
     cellList = []
     vectorList = []
 
+    #DRAW GRID
     def draw_grid(size_x, size_y):
         # init settings here
         grid_total_size_x = size_x * SIDE_LENGTH
@@ -139,7 +139,35 @@ def main ():
             
             final_noise = round(final_noise / total_weight, 2)
             cellList[i][j].update_value(final_noise)
-            
+
+    # SPAWN POINT GENERATION
+    # assume the map are even x even, the middle 8x8 block will be used as a spawn point.
+
+    # spawn base initiation
+    for i in range (SIZE_X//2 - 4, SIZE_X//2 + 6):
+        for j in range (SIZE_Y//2 - 4, SIZE_Y//2 + 6):
+            cellList[i][j].update_value(0)
+
+    # 
+
+    rangle_deg = 360/NUM_PLAYERS
+    rangle_rad = math.radians(rangle_deg)
+
+    # a random start bearing
+    start_bearing_deg = random.randint(0, round(rangle_deg))
+    bearing_rad = math.radians(start_bearing_deg)
+
+    mid_cell_x = SIZE_X // 2 + 1
+    mid_cell_y = SIZE_Y // 2 + 1
+
+    for i in range (NUM_PLAYERS):
+        player_init_vector_x = math.floor(4 * math.cos(bearing_rad))
+        player_init_vector_y = math.floor(4 * math.sin(bearing_rad))
+        print(f"{mid_cell_x + player_init_vector_x}, {mid_cell_y + player_init_vector_y}")
+        cellList[mid_cell_x + player_init_vector_x][mid_cell_y + player_init_vector_y].update_value(1)
+        bearing_rad += rangle_rad
+        
+
     # RUNNING
     running = True
     while running:

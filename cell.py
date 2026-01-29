@@ -45,20 +45,34 @@ class Cell (pygame.sprite.Sprite):
         self.rect_color.hsla = (hue, 100, 50, 100)"""
 
         #config2: map
-        if self.value < 0.15:
+        
+        #special cells
+        if self.value == 0: #spawn base
+            self.rect_color = "gray"
+        elif self.value == 1: #player's spawn point
+            self.rect_color = "black"
+        
+        #terrain cells
+        elif self.value < 0.125:
             self.rect_color = "violet"
         elif self.value < 0.25:
             self.rect_color = "blue"
-        elif self.value < 0.35:
+        elif self.value < 0.4:
             self.rect_color = "green"
-        elif self.value < 0.65:
+        elif self.value < 0.6:
             self.rect_color = "lightgreen"
         elif self.value < 0.75:
             self.rect_color = "yellow"
-        elif self.value < 0.85:
+        elif self.value < 0.875:
             self.rect_color = "orange"
-        else:
+        elif self.value < 1:
             self.rect_color = "red"
+
+            
+
+
+
+        
 
         self.text_surf = self.font.render(str(self.value), True, "black")
         self.text_rect = self.text_surf.get_rect(
