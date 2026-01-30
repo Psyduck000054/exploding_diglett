@@ -24,6 +24,47 @@ def main ():
     cellList = []
     vectorList = []
 
+    #IMAGES LOAD
+    # --- ADD THIS BEFORE draw_grid(SIZE_X, SIZE_Y) ---
+
+    def load_all_textures():
+        tex = {}
+
+        files = {
+            "base": "spawn_base.png",
+            "spawn": "spawn_point.png",
+            "rune_chest": "rune_chest.png",
+            "rune_beacon": "rune_beacon.png",
+            "abyss": "abyss.png",
+            "deep_sea": "deep_sea.png",
+            "shallow_sea": "shallow_sea.png",
+            "sand": "sand.png",
+            "grassland": "grassland.png",
+            "desert": "desert.png",
+            "badlands": "badlands.png",
+            "lava": "lava.png",
+            # "fire_dragon": "fire_dragon.png",
+            "fire_dragon": "lava.png",
+            #"deep_sea_dragon": "deep_sea_dragon.png"
+            "deep_sea_dragon": "abyss.png"
+        }
+        
+        for key, filename in files.items():
+            try:
+                img = pygame.image.load(f"assets/{filename}").convert_alpha()
+                # ensure it is exactly 12x12
+                tex[key] = pygame.transform.scale(img, (SIDE_LENGTH, SIDE_LENGTH))
+            except:
+                # create a colored square if file is missing
+                fallback = pygame.Surface((SIDE_LENGTH, SIDE_LENGTH))
+                fallback.fill("magenta") 
+                tex[key] = fallback
+        return tex
+
+        # Initialize the textures
+    Cell.textures = load_all_textures()
+
+
     #DRAW GRID
     def draw_grid(size_x, size_y):
         # init settings here
@@ -168,7 +209,7 @@ def main ():
         bearing_rad += rangle_rad
 
     # DRAGON GENERATION
-    # for cells that has value smaller than 0.15, there is a chance that a dark dragon spawns
+    # for cells that has value smaller than 0.15, there is a chance that a deep sea dragon spawns
     # for cells that has value larger than 0.85, there is a chance that a fire dragon spawns
 
     for i in range (1, SIZE_X - 1): #exclude first and last row/column since a dragon is 3x3
@@ -179,15 +220,15 @@ def main ():
             cell = cellList[i][j]
             rng = random.random()
 
-            if ((cell.value > 0.85 and cell.value < 1) and cell.dragon_in_range == False) and rng < DRAGON_SPAWN_RATE: # fire dragon
+            if ((cell.value > 0.875 and cell.value < 1) and cell.dragon_in_range == False) and rng < DRAGON_SPAWN_RATE: # fire dragon
                 cell.is_dragon = True
                 
-                print(f"FIRE DRAGON SPAWNED AT [{i}, {j}] WITH CELL VALUE {cell.value}")
+                #print(f"FIRE DRAGON SPAWNED AT [{i}, {j}] WITH CELL VALUE {cell.value}")
 
                 # draw dragon
                 for x in range (i - 1, i + 2):
                     for y in range (j - 1, j + 2):
-                        if cellList[x][y].is_base == 0:
+                        if cellList[x][y].is_base == 0 and cellList[x][y].value % 1 != 0:
                             cellList[x][y].update_value(2)
                 
                 # set a dragon-proof area
@@ -195,15 +236,15 @@ def main ():
                     for y in range (max(0, j - DRAGON_DIST//2), min(SIZE_Y - 1, j + DRAGON_DIST//2 + 1)):
                         cellList[x][y].dragon_in_range = True
             
-            if ((cell.value > 0 and cell.value < 0.15) and cell.dragon_in_range == False) and rng < DRAGON_SPAWN_RATE: # dark dragon
+            if ((cell.value > 0 and cell.value < 0.125) and cell.dragon_in_range == False) and rng < DRAGON_SPAWN_RATE: # deep sea dragon
                 cell.is_dragon = True
 
-                print(f"DARK DRAGON SPAWNED AT [{i}, {j}] WITH CELL VALUE {cell.value}")
+                #print(f"DEEP SEA DRAGON SPAWNED AT [{i}, {j}] WITH CELL VALUE {cell.value}")
 
                 # draw dragon
                 for x in range (i - 1, i + 2):
                     for y in range (j - 1, j + 2):
-                        if cellList[x][y].is_base == 0:
+                        if cellList[x][y].is_base == 0 and cellList[x][y].value % 1 != 0:
                             cellList[x][y].update_value(3)
                 
                 # set a dragon-proof area
@@ -220,15 +261,16 @@ def main ():
                 rng = random.random()
                 cell = cellList[i][j]
 
-                if ((cell.value > 0.35 and cell.value < 0.65) and cell.is_rune == False) and rng < RUNE_SPAWN_RATE:
+                if ((cell.value > 0.375 and cell.value < 0.625) and cell.is_rune == False) and rng < RUNE_SPAWN_RATE:
                     cell.is_rune = True
                     cell.update_value(4)
                     adjacent_cell = [[1, 0], [0, 1], [-1, 0], [0, -1]] #four adjacent cells
                     for pair in adjacent_cell:
-                        cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].is_rune = True
-                        cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].update_value(5)
+                        if cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].value % 1 != 0:
+                            cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].is_rune = True
+                            cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].update_value(5)
 
-                    print (f"RUNE GENERATED AT [{i}, {j}]")
+                    #print (f"RUNE GENERATED AT [{i}, {j}]")
 
 
 
