@@ -147,6 +147,7 @@ def main ():
     for i in range (SIZE_X//2 - 4, SIZE_X//2 + 6):
         for j in range (SIZE_Y//2 - 4, SIZE_Y//2 + 6):
             cellList[i][j].update_value(0)
+            cellList[i][j].is_base = True
 
     # 
 
@@ -163,11 +164,76 @@ def main ():
     for i in range (NUM_PLAYERS):
         player_init_vector_x = math.floor(4 * math.cos(bearing_rad))
         player_init_vector_y = math.floor(4 * math.sin(bearing_rad))
-        print(f"{mid_cell_x + player_init_vector_x}, {mid_cell_y + player_init_vector_y}")
         cellList[mid_cell_x + player_init_vector_x][mid_cell_y + player_init_vector_y].update_value(1)
         bearing_rad += rangle_rad
-        
 
+    # DRAGON GENERATION
+    # for cells that has value smaller than 0.15, there is a chance that a dark dragon spawns
+    # for cells that has value larger than 0.85, there is a chance that a fire dragon spawns
+
+    for i in range (1, SIZE_X - 1): #exclude first and last row/column since a dragon is 3x3
+        for j in range (1, SIZE_Y - 1):
+            if cellList[i][j].is_base == 1: #no dragon on base
+                break
+
+            cell = cellList[i][j]
+            rng = random.random()
+
+            if ((cell.value > 0.85 and cell.value < 1) and cell.dragon_in_range == False) and rng < DRAGON_SPAWN_RATE: # fire dragon
+                cell.is_dragon = True
+                
+                print(f"FIRE DRAGON SPAWNED AT [{i}, {j}] WITH CELL VALUE {cell.value}")
+
+                # draw dragon
+                for x in range (i - 1, i + 2):
+                    for y in range (j - 1, j + 2):
+                        if cellList[x][y].is_base == 0:
+                            cellList[x][y].update_value(2)
+                
+                # set a dragon-proof area
+                for x in range (max(0, i - DRAGON_DIST//2), min(SIZE_X - 1, i + DRAGON_DIST//2 + 1)):
+                    for y in range (max(0, j - DRAGON_DIST//2), min(SIZE_Y - 1, j + DRAGON_DIST//2 + 1)):
+                        cellList[x][y].dragon_in_range = True
+            
+            if ((cell.value > 0 and cell.value < 0.15) and cell.dragon_in_range == False) and rng < DRAGON_SPAWN_RATE: # dark dragon
+                cell.is_dragon = True
+
+                print(f"DARK DRAGON SPAWNED AT [{i}, {j}] WITH CELL VALUE {cell.value}")
+
+                # draw dragon
+                for x in range (i - 1, i + 2):
+                    for y in range (j - 1, j + 2):
+                        if cellList[x][y].is_base == 0:
+                            cellList[x][y].update_value(3)
+                
+                # set a dragon-proof area
+                for x in range (max(0, i - DRAGON_DIST//2), min(SIZE_X - 1, i + DRAGON_DIST//2 + 1)):
+                    for y in range (max(0, j - DRAGON_DIST//2), min(SIZE_Y - 1, j + DRAGON_DIST//2 + 1)):
+                        cellList[x][y].dragon_in_range = True
+           
+    # RUNE GENERATION
+    # spawn across the grass area (0.35 to 0.65 in value), shape looks like a plus sign
+    for i in range (1, SIZE_X - 1): #exclude first and last row/column since a dragon is 3x3
+            for j in range (1, SIZE_Y - 1):
+                if cellList[i][j].is_base == 1 or cellList[i][j].is_dragon == 1: #no dragon or base
+                    break
+                rng = random.random()
+                cell = cellList[i][j]
+
+                if ((cell.value > 0.35 and cell.value < 0.65) and cell.is_rune == False) and rng < RUNE_SPAWN_RATE:
+                    cell.is_rune = True
+                    cell.update_value(4)
+                    adjacent_cell = [[1, 0], [0, 1], [-1, 0], [0, -1]] #four adjacent cells
+                    for pair in adjacent_cell:
+                        cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].is_rune = True
+                        cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].update_value(5)
+
+                    print (f"RUNE GENERATED AT [{i}, {j}]")
+
+
+
+
+                
     # RUNNING
     running = True
     while running:

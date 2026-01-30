@@ -12,6 +12,16 @@ class Cell (pygame.sprite.Sprite):
         self.side_length = side_length
         self.value = value
 
+        #dragon
+        self.is_dragon = False
+        self.dragon_in_range = False
+
+        #rune
+        self.is_rune = False
+
+        #base
+        self.is_base = False
+
         #position in chunk 
         self.cx = 0
         self.cy = 0
@@ -51,22 +61,30 @@ class Cell (pygame.sprite.Sprite):
             self.rect_color = "gray"
         elif self.value == 1: #player's spawn point
             self.rect_color = "black"
+        elif self.value == 2: #fire dragon
+            self.rect_color = "red"
+        elif self.value == 3: #dark dragon
+            self.rect_color = "purple"
+        elif self.value == 4: #rune center
+            self.rect_color = "cyan"
+        elif self.value == 5: #surroundings
+            self.rect_color = "darkslategray"
         
         #terrain cells
-        elif self.value < 0.125:
-            self.rect_color = "violet"
+        elif self.value < 0.15:
+            self.rect_color = "plum"
         elif self.value < 0.25:
-            self.rect_color = "blue"
-        elif self.value < 0.4:
-            self.rect_color = "green"
-        elif self.value < 0.6:
-            self.rect_color = "lightgreen"
+            self.rect_color = "mediumslateblue"
+        elif self.value < 0.35:
+            self.rect_color = "lightblue"
+        elif self.value < 0.65:
+            self.rect_color = "palegreen"
         elif self.value < 0.75:
-            self.rect_color = "yellow"
-        elif self.value < 0.875:
-            self.rect_color = "orange"
+            self.rect_color = "lemonchiffon"
+        elif self.value < 0.85:
+            self.rect_color = "peachpuff"
         elif self.value < 1:
-            self.rect_color = "red"
+            self.rect_color = "salmon"
 
             
 
