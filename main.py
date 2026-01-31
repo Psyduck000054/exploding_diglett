@@ -29,36 +29,33 @@ def main ():
 
     def load_all_textures():
         tex = {}
-
         files = {
-            "base": "spawn_base.png",
-            "spawn": "spawn_point.png",
-            "rune_chest": "rune_chest.png",
-            "rune_beacon": "rune_beacon.png",
-            "abyss": "abyss.png",
-            "deep_sea": "deep_sea.png",
-            "shallow_sea": "shallow_sea.png",
-            "sand": "sand.png",
-            "grassland": "grassland.png",
-            "desert": "desert.png",
-            "badlands": "badlands.png",
-            "lava": "lava.png",
-            # "fire_dragon": "fire_dragon.png",
-            "fire_dragon": "lava.png",
-            #"deep_sea_dragon": "deep_sea_dragon.png"
-            "deep_sea_dragon": "abyss.png"
+            "base": "spawn_base.png", "spawn": "spawn_point.png",
+            "rune_chest": "rune_chest.png", "rune_beacon": "rune_beacon.png",
+            "abyss": "abyss.png", "deep_sea": "deep_sea.png",
+            "shallow_sea": "shallow_sea.png", "sand": "sand.png",
+            "grassland": "grassland.png", "desert": "desert.png",
+            "badlands": "badlands.png", "lava": "lava.png",
+            "fire_dragon": "fire_dragon.png",
+            "deep_sea_dragon": "deep_sea_dragon.png"
         }
         
         for key, filename in files.items():
             try:
                 img = pygame.image.load(f"assets/{filename}").convert_alpha()
-                # ensure it is exactly 12x12
-                tex[key] = pygame.transform.scale(img, (SIDE_LENGTH, SIDE_LENGTH))
+
+                # scale dragons to 3x3 cells, everything else to 1x1
+                if "dragon" in key:
+                    tex[key] = pygame.transform.scale(img, (SIDE_LENGTH * 3, SIDE_LENGTH * 3))
+                else:
+                    tex[key] = pygame.transform.scale(img, (SIDE_LENGTH, SIDE_LENGTH))
+                
             except:
-                # create a colored square if file is missing
-                fallback = pygame.Surface((SIDE_LENGTH, SIDE_LENGTH))
-                fallback.fill("magenta") 
+                size = (SIDE_LENGTH * 3 if "dragon" in key else SIDE_LENGTH)
+                fallback = pygame.Surface((size, size))
+                fallback.fill("red" if "fire" in key else "magenta") 
                 tex[key] = fallback
+        
         return tex
 
         # Initialize the textures

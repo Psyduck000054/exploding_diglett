@@ -13,7 +13,7 @@ VECTOR_LENGTH = 1
 ENTROPY = 3.6
 
 #log (chunk_size/min_chunk_size, scale) = int
-CHUNK_SIZE = 16
+CHUNK_SIZE = 32
 MIN_CHUNK_SIZE = 1
 SCALE = 2
 

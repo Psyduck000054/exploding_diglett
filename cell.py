@@ -32,8 +32,13 @@ class Cell(pygame.sprite.Sprite):
             super().__init__()
 
     def draw(self, screen):
-        screen.blit(self.image, (self.tl_x, self.tl_y))
-        #uncomment the line below if want to see the Perlin numbers
+        if self.is_dragon:
+            dragon_w = self.image.get_width() 
+            offset = (dragon_w - self.side_length) // 2
+            screen.blit(self.image, (self.tl_x - offset, self.tl_y - offset))
+        else:
+            screen.blit(self.image, (self.tl_x, self.tl_y))
+        
         # screen.blit(self.text_surf, self.text_rect)
 
     def update_value(self, new_value):
@@ -42,8 +47,20 @@ class Cell(pygame.sprite.Sprite):
         # special cells
         if self.value == 0: key = "base"
         elif self.value == 1: key = "spawn"
-        elif self.value == 2: key = "fire_dragon" # Placeholder for now
-        elif self.value == 3: key = "deep_sea_dragon" # Placeholder for now
+        elif self.value == 2:
+            key = "fire_dragon"
+            if self.is_dragon:
+                self.image = Cell.textures["fire_dragon"]
+            else:
+                self.image = pygame.Surface((self.side_length, self.side_length), pygame.SRCALPHA)
+            return
+        elif self.value == 3:
+            key = "deep_sea_dragon"
+            if self.is_dragon:
+                self.image = Cell.textures["deep_sea_dragon"]
+            else:
+                self.image = pygame.Surface((self.side_length, self.side_length), pygame.SRCALPHA)
+            return
         elif self.value == 4: key = "rune_chest"
         elif self.value == 5: key = "rune_beacon"
         
