@@ -1,6 +1,5 @@
 import pygame
 import math
-import random
 from constants import *
 
 class Unit_Vector(pygame.sprite.Sprite):

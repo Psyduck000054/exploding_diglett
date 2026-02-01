@@ -4,7 +4,6 @@ from cell import Cell
 from constants import *
 from vector import Unit_Vector
 from vectormath import *
-from beautyprint import *
 
 def main ():
     pygame.init()
@@ -29,13 +28,47 @@ def main ():
 
     def load_all_textures():
         tex = {}
+
+        # multiple images for one cell
+
         files = {
-            "base": "spawn_base.png", "spawn": "spawn_point.png",
-            "rune_chest": "rune_chest.png", "rune_beacon": "rune_beacon.png",
-            "abyss": "abyss.png", "deep_sea": "deep_sea.png",
-            "shallow_sea": "shallow_sea.png", "sand": "sand.png",
-            "grassland": "grassland.png", "desert": "desert.png",
-            "badlands": "badlands.png", "lava": "lava.png",
+            "base": "spawn_base.png",
+            "spawn": "spawn_point.png",
+            "rune_chest": "rune_chest.png",
+            "rune_beacon": "rune_beacon.png",
+            
+            "abyss": "abyss.png", 
+            
+            "deep_sea0": "deep_sea0.png",
+            "deep_sea1": "deep_sea1.png",
+            "deep_sea2": "deep_sea2.png",
+            "deep_sea3": "deep_sea3.png",
+
+
+            "shallow_sea0": "shallow_sea0.png",
+            "shallow_sea1": "shallow_sea1.png",
+            "shallow_sea2": "shallow_sea2.png",
+
+            "beach0": "beach0.png",
+            "beach1": "beach1.png",
+            "beach2": "beach2.png",
+
+            "grassland0": "grassland0.png",
+            "grassland1": "grassland1.png",
+            "grassland2": "grassland2.png",
+            "grassland3": "grassland3.png",
+
+            "desert0": "desert0.png",
+            "desert1": "desert1.png",
+            "desert2": "desert2.png",
+            "desert3": "desert3.png",
+
+            "badlands0": "badlands0.png",
+            "badlands1": "badlands1.png",
+            "badlands2": "badlands2.png",
+            
+            "lava": "lava.png",
+
             "fire_dragon": "fire_dragon.png",
             "deep_sea_dragon": "deep_sea_dragon.png"
         }
@@ -182,10 +215,12 @@ def main ():
     # assume the map are even x even, the middle 8x8 block will be used as a spawn point.
 
     # spawn base initiation
-    for i in range (SIZE_X//2 - 4, SIZE_X//2 + 6):
-        for j in range (SIZE_Y//2 - 4, SIZE_Y//2 + 6):
-            cellList[i][j].update_value(0)
-            cellList[i][j].is_base = True
+    for i in range (SIZE_X//2 - 6, SIZE_X//2 + 8):
+        for j in range (SIZE_Y//2 - 6, SIZE_Y//2 + 8):
+            cellList[i][j].spawn_proof = True
+            if (((i >= SIZE_X//2 - 4) and (i <= SIZE_X//2 + 5)) and (j >= SIZE_Y//2 - 4) and (j <= SIZE_Y//2 + 5)):
+                cellList[i][j].update_value(0)
+                cellList[i][j].is_base = True
 
     # 
 
@@ -211,13 +246,14 @@ def main ():
 
     for i in range (1, SIZE_X - 1): #exclude first and last row/column since a dragon is 3x3
         for j in range (1, SIZE_Y - 1):
-            if cellList[i][j].is_base == 1: #no dragon on base
+            if cellList[i][j].spawn_proof == 1: #no dragon on base
                 break
 
             cell = cellList[i][j]
             rng = random.random()
 
             if ((cell.value > 0.875 and cell.value < 1) and cell.dragon_in_range == False) and rng < DRAGON_SPAWN_RATE: # fire dragon
+                cell.spawn_proof = True
                 cell.is_dragon = True
                 
                 #print(f"FIRE DRAGON SPAWNED AT [{i}, {j}] WITH CELL VALUE {cell.value}")
@@ -225,7 +261,7 @@ def main ():
                 # draw dragon
                 for x in range (i - 1, i + 2):
                     for y in range (j - 1, j + 2):
-                        if cellList[x][y].is_base == 0 and cellList[x][y].value % 1 != 0:
+                        if cellList[x][y].value % 1 != 0:
                             cellList[x][y].update_value(2)
                 
                 # set a dragon-proof area
@@ -234,6 +270,7 @@ def main ():
                         cellList[x][y].dragon_in_range = True
             
             if ((cell.value > 0 and cell.value < 0.125) and cell.dragon_in_range == False) and rng < DRAGON_SPAWN_RATE: # deep sea dragon
+                cell.spawn_proof = True
                 cell.is_dragon = True
 
                 #print(f"DEEP SEA DRAGON SPAWNED AT [{i}, {j}] WITH CELL VALUE {cell.value}")
@@ -241,7 +278,7 @@ def main ():
                 # draw dragon
                 for x in range (i - 1, i + 2):
                     for y in range (j - 1, j + 2):
-                        if cellList[x][y].is_base == 0 and cellList[x][y].value % 1 != 0:
+                        if cellList[x][y].value % 1 != 0:
                             cellList[x][y].update_value(3)
                 
                 # set a dragon-proof area
@@ -253,8 +290,8 @@ def main ():
     # spawn across the grass area (0.35 to 0.65 in value), shape looks like a plus sign
     for i in range (1, SIZE_X - 1): #exclude first and last row/column since a dragon is 3x3
             for j in range (1, SIZE_Y - 1):
-                if cellList[i][j].is_base == 1 or cellList[i][j].is_dragon == 1: #no dragon or base
-                    break
+                if cellList[i][j].spawn_proof == 1: #no dragon or base
+                    continue
                 rng = random.random()
                 cell = cellList[i][j]
 
