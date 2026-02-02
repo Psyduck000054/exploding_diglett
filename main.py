@@ -43,7 +43,7 @@ def main ():
             "deep_sea1": "deep_sea1.png",
             "deep_sea2": "deep_sea2.png",
             "deep_sea3": "deep_sea3.png",
-
+            "deep_sea4": "deep_sea4.png",
 
             "shallow_sea0": "shallow_sea0.png",
             "shallow_sea1": "shallow_sea1.png",
@@ -215,10 +215,10 @@ def main ():
     # assume the map are even x even, the middle 8x8 block will be used as a spawn point.
 
     # spawn base initiation
-    for i in range (SIZE_X//2 - 6, SIZE_X//2 + 8):
-        for j in range (SIZE_Y//2 - 6, SIZE_Y//2 + 8):
+    for i in range (SIZE_X//2 - 7, SIZE_X//2 + 7):
+        for j in range (SIZE_Y//2 - 7, SIZE_Y//2 + 7):
             cellList[i][j].spawn_proof = True
-            if (((i >= SIZE_X//2 - 4) and (i <= SIZE_X//2 + 5)) and (j >= SIZE_Y//2 - 4) and (j <= SIZE_Y//2 + 5)):
+            if (((i >= SIZE_X//2 - 5) and (i <= SIZE_X//2 + 4)) and (j >= SIZE_Y//2 - 5) and (j <= SIZE_Y//2 + 4)):
                 cellList[i][j].update_value(0)
                 cellList[i][j].is_base = True
 
@@ -231,8 +231,8 @@ def main ():
     start_bearing_deg = random.randint(0, round(rangle_deg))
     bearing_rad = math.radians(start_bearing_deg)
 
-    mid_cell_x = SIZE_X // 2 + 1
-    mid_cell_y = SIZE_Y // 2 + 1
+    mid_cell_x = SIZE_X // 2
+    mid_cell_y = SIZE_Y // 2
 
     for i in range (NUM_PLAYERS):
         player_init_vector_x = math.floor(4 * math.cos(bearing_rad))
@@ -287,7 +287,7 @@ def main ():
                         cellList[x][y].dragon_in_range = True
            
     # RUNE GENERATION
-    # spawn across the grass area (0.35 to 0.65 in value), shape looks like a plus sign
+    # spawn across the sand/grass/desert area (0.35 to 0.65 in value), shape looks like a plus sign
     for i in range (1, SIZE_X - 1): #exclude first and last row/column since a dragon is 3x3
             for j in range (1, SIZE_Y - 1):
                 if cellList[i][j].spawn_proof == 1: #no dragon or base
@@ -295,7 +295,7 @@ def main ():
                 rng = random.random()
                 cell = cellList[i][j]
 
-                if ((cell.value > 0.375 and cell.value < 0.625) and cell.is_rune == False) and rng < RUNE_SPAWN_RATE:
+                if ((cell.value > 0.35 and cell.value < 0.75) and cell.is_rune == False) and rng < RUNE_SPAWN_RATE:
                     cell.is_rune = True
                     cell.update_value(4)
                     adjacent_cell = [[1, 0], [0, 1], [-1, 0], [0, -1]] #four adjacent cells
@@ -305,10 +305,6 @@ def main ():
                             cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].update_value(5)
 
                     #print (f"RUNE GENERATED AT [{i}, {j}]")
-
-
-
-
                 
     # RUNNING
     running = True

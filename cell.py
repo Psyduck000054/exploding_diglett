@@ -48,9 +48,10 @@ class Cell(pygame.sprite.Sprite):
         # cell values with multiple textures
         deep_sea = []
         add (deep_sea, [["deep_sea0", 80],
-                        ["deep_sea1", 10], 
+                        ["deep_sea1", 5], 
                         ["deep_sea2", 5],
-                        ["deep_sea3", 5]])
+                        ["deep_sea3", 5],
+                        ["deep_sea4", 5]])
 
         shallow_sea = []
         add (shallow_sea, [["shallow_sea0", 80],
@@ -63,21 +64,21 @@ class Cell(pygame.sprite.Sprite):
                      ["beach2", 10]])
         
         grassland = []
-        add (grassland, [["grassland0", 70],
-                         ["grassland1", 10],
+        add (grassland, [["grassland0", 80],
+                         ["grassland1", 5],
                          ["grassland2", 10],
-                         ["grassland3", 10],])
+                         ["grassland3", 5],])
         
         desert = []
-        add (desert, [["desert0", 60],
+        add (desert, [["desert0", 75],
                       ["desert1", 10],
-                      ["desert2", 25],
+                      ["desert2", 10],
                       ["desert3", 5]])
     
         badlands = []
-        add (badlands, [["badlands0", 70],
-                        ["badlands1", 15],
-                        ["badlands2", 15]])
+        add (badlands, [["badlands0", 80],
+                        ["badlands1", 10],
+                        ["badlands2", 10]])
 
         # special cells
         if self.value == 0: key = "base"
@@ -101,11 +102,11 @@ class Cell(pygame.sprite.Sprite):
         
         # terrain
         elif self.value < 0.125: key = "abyss"
-        elif self.value < 0.25:  key = random.choice(deep_sea)
-        elif self.value < 0.375: key = random.choice(shallow_sea)
-        elif self.value < 0.5:   key = random.choice(beach)
-        elif self.value < 0.625: key = random.choice(grassland)
-        elif self.value < 0.75:  key = random.choice(desert)
+        elif self.value < 0.25: key = random.choice(deep_sea)
+        elif self.value < 0.35: key = random.choice(shallow_sea)
+        elif self.value < 0.45: key = random.choice(beach)
+        elif self.value < 0.65: key = random.choice(grassland)
+        elif self.value < 0.75: key = random.choice(desert)
         elif self.value < 0.875: key = random.choice(badlands)
         else:                    key = "lava"
 
