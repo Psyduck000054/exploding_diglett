@@ -252,7 +252,7 @@ def main ():
             cell = cellList[i][j]
             rng = random.random()
 
-            if ((cell.value > 0.875 and cell.value < 1) and cell.dragon_in_range == False) and rng < DRAGON_SPAWN_RATE: # fire dragon
+            if ((cell.value > BADLANDS and cell.value < LAVA) and cell.dragon_in_range == False) and rng < DRAGON_SPAWN_RATE: # fire dragon
                 cell.spawn_proof = True
                 cell.is_dragon = True
                 
@@ -269,7 +269,7 @@ def main ():
                     for y in range (max(0, j - DRAGON_DIST//2), min(SIZE_Y - 1, j + DRAGON_DIST//2 + 1)):
                         cellList[x][y].dragon_in_range = True
             
-            if ((cell.value > 0 and cell.value < 0.125) and cell.dragon_in_range == False) and rng < DRAGON_SPAWN_RATE: # deep sea dragon
+            if ((cell.value > 0 and cell.value < ABYSS) and cell.dragon_in_range == False) and rng < DRAGON_SPAWN_RATE: # deep sea dragon
                 cell.spawn_proof = True
                 cell.is_dragon = True
 
@@ -295,7 +295,7 @@ def main ():
                 rng = random.random()
                 cell = cellList[i][j]
 
-                if ((cell.value > 0.35 and cell.value < 0.75) and cell.is_rune == False) and rng < RUNE_SPAWN_RATE:
+                if ((cell.value > SHALLOW_SEA and cell.value < DESERT) and cell.is_rune == False) and rng < RUNE_SPAWN_RATE:
                     cell.is_rune = True
                     cell.update_value(4)
                     adjacent_cell = [[1, 0], [0, 1], [-1, 0], [0, -1]] #four adjacent cells
