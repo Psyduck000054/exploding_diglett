@@ -117,6 +117,21 @@ class Cell(pygame.sprite.Sprite):
             else:
                 self.image = pygame.Surface((self.side_length, self.side_length), pygame.SRCALPHA)
             return
+        elif self.value == 8:
+            key = "grassland_3x3"
+            if self.is_3x3:
+                self.image = Cell.textures["grassland_3x3"]
+            else:
+                self.image = pygame.Surface((self.side_length, self.side_length), pygame.SRCALPHA)
+            return
+        elif self.value == 9:
+            key = "beach_3x3"
+            if self.is_3x3:
+                self.image = Cell.textures["beach_3x3"]
+            else:
+                self.image = pygame.Surface((self.side_length, self.side_length), pygame.SRCALPHA)
+            return
+
 
         # terrain
         elif self.value < ABYSS: key = "abyss"

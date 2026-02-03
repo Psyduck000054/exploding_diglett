@@ -51,11 +51,13 @@ def main ():
             "beach0": "beach0.png",
             "beach1": "beach1.png",
             "beach2": "beach2.png",
+            "beach_3x3": "beach_3x3.png",
 
             "grassland0": "grassland0.png",
             "grassland1": "grassland1.png",
             "grassland2": "grassland2.png",
             "grassland3": "grassland3.png",
+            "grassland_3x3": "grassland_3x3.png",
 
             "desert0": "desert0.png",
             "desert1": "desert1.png",
@@ -77,7 +79,7 @@ def main ():
             try:
                 img = pygame.image.load(f"assets/{filename}").convert_alpha()
 
-                enlarged_list = ["fire_dragon", "deep_sea_dragon", "desert_3x3", "badlands_3x3"]
+                enlarged_list = ["fire_dragon", "deep_sea_dragon", "desert_3x3", "badlands_3x3", "grassland_3x3", "beach_3x3"]
                 # scale items in enlarged_list to 3x3 cells, everything else to 1x1
                 if key in enlarged_list:
                     tex[key] = pygame.transform.scale(img, (SIDE_LENGTH * 3, SIDE_LENGTH * 3))
@@ -243,7 +245,7 @@ def main ():
         cellList[mid_cell_x + player_init_vector_x][mid_cell_y + player_init_vector_y].update_value(1)
         bearing_rad += rangle_rad
     
-    for i in range (1, SIZE_X - 1): #exclude first and last row/column since a dragon is 3x3
+    for i in range (1, SIZE_X - 1):
         for j in range (1, SIZE_Y - 1):
             if cellList[i][j].spawn_proof == 1: #no dragon or base
                 continue
@@ -261,12 +263,20 @@ def main ():
                     if cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].value % 1 != 0:
                         cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].is_rune = True
                         cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].update_value(3)
+                
+                for x in range (max (0, i - 2), min (SIZE_X - 1, i + 3)):
+                    for y in range (max (0, j - 2), min (SIZE_Y - 1, j + 3)):
+                        cellList[x][y].spawn_proof = True
     
     
     gen_3x3(cellList, 4, BADLANDS, LAVA, DRAGON_SPAWN_RATE, DRAGON_SEPARATION)
     gen_3x3(cellList, 5, 0, ABYSS, DRAGON_SPAWN_RATE, DRAGON_SEPARATION)
     gen_3x3(cellList, 6, DESERT, BADLANDS, MINESHAFT_SPAWN_RATE, MINESHAFT_SEPARATION)
     gen_3x3(cellList, 7, GRASSLAND, DESERT, OASIS_SPAWN_RATE, OASIS_SEPARATION)
+    gen_3x3(cellList, 8, BEACH, GRASSLAND, FRUIT_TREE_SPAWN_RATE, FRUIT_TREE_SEPARATION)
+    gen_3x3(cellList, 9, SHALLOW_SEA, BEACH, COCONUT_CANOPY_SPAWN_RATE, COCONUT_CANOPY_SEPARATION)
+
+
     
     # RUNNING
     running = True
