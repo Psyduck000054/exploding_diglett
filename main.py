@@ -4,6 +4,7 @@ from cell import Cell
 from constants import *
 from vector import Unit_Vector
 from vectormath import *
+from gen_3x3 import *
 
 def main ():
     pygame.init()
@@ -42,8 +43,6 @@ def main ():
             "deep_sea0": "deep_sea0.png",
             "deep_sea1": "deep_sea1.png",
             "deep_sea2": "deep_sea2.png",
-            "deep_sea3": "deep_sea3.png",
-            "deep_sea4": "deep_sea4.png",
 
             "shallow_sea0": "shallow_sea0.png",
             "shallow_sea1": "shallow_sea1.png",
@@ -61,11 +60,12 @@ def main ():
             "desert0": "desert0.png",
             "desert1": "desert1.png",
             "desert2": "desert2.png",
-            "desert3": "desert3.png",
+            "desert_3x3": "desert_3x3.png",
 
             "badlands0": "badlands0.png",
             "badlands1": "badlands1.png",
             "badlands2": "badlands2.png",
+            "badlands_3x3": "badlands_3x3.png",
             
             "lava": "lava.png",
 
@@ -77,7 +77,7 @@ def main ():
             try:
                 img = pygame.image.load(f"assets/{filename}").convert_alpha()
 
-                enlarged_list = ["fire_dragon", "deep_sea_dragon", "desert3"]
+                enlarged_list = ["fire_dragon", "deep_sea_dragon", "desert_3x3", "badlands_3x3"]
                 # scale items in enlarged_list to 3x3 cells, everything else to 1x1
                 if key in enlarged_list:
                     tex[key] = pygame.transform.scale(img, (SIDE_LENGTH * 3, SIDE_LENGTH * 3))
@@ -91,14 +91,13 @@ def main ():
                     size = SIDE_LENGTH
 
                 fallback = pygame.Surface((size, size))
-                fallback.fill("red" if "fire" in key else "magenta") 
+                fallback.fill("magenta") 
                 tex[key] = fallback
         
         return tex
 
         # Initialize the textures
     Cell.textures = load_all_textures()
-
 
     #DRAW GRID
     def draw_grid(size_x, size_y):
@@ -223,11 +222,10 @@ def main ():
     for i in range (SIZE_X//2 - 7, SIZE_X//2 + 7):
         for j in range (SIZE_Y//2 - 7, SIZE_Y//2 + 7):
             cellList[i][j].spawn_proof = True
+            cellList[i][j].block[0] = True
+
             if (((i >= SIZE_X//2 - 5) and (i <= SIZE_X//2 + 4)) and (j >= SIZE_Y//2 - 5) and (j <= SIZE_Y//2 + 4)):
                 cellList[i][j].update_value(0)
-                cellList[i][j].is_base = True
-
-    # 
 
     rangle_deg = 360/NUM_PLAYERS
     rangle_rad = math.radians(rangle_deg)
@@ -244,99 +242,32 @@ def main ():
         player_init_vector_y = math.floor(4 * math.sin(bearing_rad))
         cellList[mid_cell_x + player_init_vector_x][mid_cell_y + player_init_vector_y].update_value(1)
         bearing_rad += rangle_rad
-
-    # DRAGON GENERATION
-    # for cells that has value smaller than 0.15, there is a chance that a deep sea dragon spawns
-    # for cells that has value larger than 0.85, there is a chance that a fire dragon spawns
-
+    
     for i in range (1, SIZE_X - 1): #exclude first and last row/column since a dragon is 3x3
         for j in range (1, SIZE_Y - 1):
-            if cellList[i][j].spawn_proof == 1: #no dragon on base
-                break
-
-            cell = cellList[i][j]
+            if cellList[i][j].spawn_proof == 1: #no dragon or base
+                continue
             rng = random.random()
-
-            if ((cell.value > BADLANDS and cell.value < LAVA) and cell.dragon_in_range == False) and rng < DRAGON_SPAWN_RATE: # fire dragon
-                cell.spawn_proof = True
-                cell.is_dragon = True
-                
-                #print(f"FIRE DRAGON SPAWNED AT [{i}, {j}] WITH CELL VALUE {cell.value}")
-
-                # draw dragon
-                for x in range (i - 1, i + 2):
-                    for y in range (j - 1, j + 2):
-                        if cellList[x][y].value % 1 != 0:
-                            cellList[x][y].update_value(2)
-                
-                # set a dragon-proof area
-                for x in range (max(0, i - DRAGON_DIST//2), min(SIZE_X - 1, i + DRAGON_DIST//2 + 1)):
-                    for y in range (max(0, j - DRAGON_DIST//2), min(SIZE_Y - 1, j + DRAGON_DIST//2 + 1)):
-                        cellList[x][y].dragon_in_range = True
-            
-            if ((cell.value > 0 and cell.value < ABYSS) and cell.dragon_in_range == False) and rng < DRAGON_SPAWN_RATE: # deep sea dragon
-                cell.spawn_proof = True
-                cell.is_dragon = True
-
-                #print(f"DEEP SEA DRAGON SPAWNED AT [{i}, {j}] WITH CELL VALUE {cell.value}")
-
-                # draw dragon
-                for x in range (i - 1, i + 2):
-                    for y in range (j - 1, j + 2):
-                        if cellList[x][y].value % 1 != 0:
-                            cellList[x][y].update_value(3)
-                
-                # set a dragon-proof area
-                for x in range (max(0, i - DRAGON_DIST//2), min(SIZE_X - 1, i + DRAGON_DIST//2 + 1)):
-                    for y in range (max(0, j - DRAGON_DIST//2), min(SIZE_Y - 1, j + DRAGON_DIST//2 + 1)):
-                        cellList[x][y].dragon_in_range = True
-           
-    # RUNE GENERATION
-    # spawn across the sand/grass/desert area (0.35 to 0.65 in value), shape looks like a plus sign
-    for i in range (1, SIZE_X - 1): #exclude first and last row/column since a dragon is 3x3
-            for j in range (1, SIZE_Y - 1):
-                if cellList[i][j].spawn_proof == 1: #no dragon or base
-                    continue
-                rng = random.random()
-                cell = cellList[i][j]
-
-                if ((cell.value > SHALLOW_SEA and cell.value < DESERT) and cell.is_rune == False) and rng < RUNE_SPAWN_RATE:
-                    cell.is_rune = True
-                    cell.update_value(4)
-                    adjacent_cell = [[1, 0], [0, 1], [-1, 0], [0, -1]] #four adjacent cells
-                    for pair in adjacent_cell:
-                        if cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].value % 1 != 0:
-                            cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].is_rune = True
-                            cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].update_value(5)
-
-                    #print (f"RUNE GENERATED AT [{i}, {j}]")
-
-    # OASIS GENERATION
-    for i in range (1, SIZE_X - 1): #exclude first and last row/column since an oasis is 3x3
-        for j in range (1, SIZE_Y - 1):
-            if cellList[i][j].spawn_proof == 1:
-                break
-
             cell = cellList[i][j]
-            rng = random.random()
 
-            if ((cell.value > GRASSLAND and cell.value < DESERT)) and rng < OASIS_SPAWN_RATE:
+            if (cell.value > SHALLOW_SEA and cell.value < DESERT) and rng < RUNE_SPAWN_RATE:
                 cell.spawn_proof = True
-                cell.is_dragon = True
+                cell.update_value(2)
+                print(f"CELL 2 SPAWNED AT [{i}, {j}]")
 
-                # draw oasis
-                for x in range (i - 1, i + 2):
-                    for y in range (j - 1, j + 2):
-                        if cellList[x][y].value % 1 != 0:
-                            cellList[x][y].update_value(6)
-
-                print(f"OASIS SPAWNED AT [{i}, {j}] WITH CELL VALUE {cell.value}")
                 
-                for x in range (max (0, i - 3), min (SIZE_X - 1, i + 4)):
-                    for y in range (max (0, j - 3), min (SIZE_Y - 1, j + 4)):
-                        cellList[x][y].spawn_proof = True
-            
-
+                adjacent_cell = [[1, 0], [0, 1], [-1, 0], [0, -1]] #four adjacent cells
+                for pair in adjacent_cell:
+                    if cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].value % 1 != 0:
+                        cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].is_rune = True
+                        cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].update_value(3)
+    
+    
+    gen_3x3(cellList, 4, BADLANDS, LAVA, DRAGON_SPAWN_RATE, DRAGON_SEPARATION)
+    gen_3x3(cellList, 5, 0, ABYSS, DRAGON_SPAWN_RATE, DRAGON_SEPARATION)
+    gen_3x3(cellList, 6, DESERT, BADLANDS, MINESHAFT_SPAWN_RATE, MINESHAFT_SEPARATION)
+    gen_3x3(cellList, 7, GRASSLAND, DESERT, OASIS_SPAWN_RATE, OASIS_SEPARATION)
+    
     # RUNNING
     running = True
     while running:
