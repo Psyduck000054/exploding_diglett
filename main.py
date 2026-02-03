@@ -77,14 +77,19 @@ def main ():
             try:
                 img = pygame.image.load(f"assets/{filename}").convert_alpha()
 
-                # scale dragons to 3x3 cells, everything else to 1x1
-                if "dragon" in key:
+                enlarged_list = ["fire_dragon", "deep_sea_dragon", "desert3"]
+                # scale items in enlarged_list to 3x3 cells, everything else to 1x1
+                if key in enlarged_list:
                     tex[key] = pygame.transform.scale(img, (SIDE_LENGTH * 3, SIDE_LENGTH * 3))
                 else:
                     tex[key] = pygame.transform.scale(img, (SIDE_LENGTH, SIDE_LENGTH))
                 
             except:
-                size = (SIDE_LENGTH * 3 if "dragon" in key else SIDE_LENGTH)
+                if key in enlarged_list:
+                    size = SIDE_LENGTH * 3
+                else:
+                    size = SIDE_LENGTH
+
                 fallback = pygame.Surface((size, size))
                 fallback.fill("red" if "fire" in key else "magenta") 
                 tex[key] = fallback
@@ -305,7 +310,33 @@ def main ():
                             cellList[min(max(0, i + pair[0]), SIZE_X - 1)][min(max(0, j + pair[1]), SIZE_Y - 1)].update_value(5)
 
                     #print (f"RUNE GENERATED AT [{i}, {j}]")
+
+    # OASIS GENERATION
+    for i in range (1, SIZE_X - 1): #exclude first and last row/column since an oasis is 3x3
+        for j in range (1, SIZE_Y - 1):
+            if cellList[i][j].spawn_proof == 1:
+                break
+
+            cell = cellList[i][j]
+            rng = random.random()
+
+            if ((cell.value > GRASSLAND and cell.value < DESERT)) and rng < OASIS_SPAWN_RATE:
+                cell.spawn_proof = True
+                cell.is_dragon = True
+
+                # draw oasis
+                for x in range (i - 1, i + 2):
+                    for y in range (j - 1, j + 2):
+                        if cellList[x][y].value % 1 != 0:
+                            cellList[x][y].update_value(6)
+
+                print(f"OASIS SPAWNED AT [{i}, {j}] WITH CELL VALUE {cell.value}")
                 
+                for x in range (max (0, i - 3), min (SIZE_X - 1, i + 4)):
+                    for y in range (max (0, j - 3), min (SIZE_Y - 1, j + 4)):
+                        cellList[x][y].spawn_proof = True
+            
+
     # RUNNING
     running = True
     while running:

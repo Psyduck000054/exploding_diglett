@@ -57,9 +57,9 @@ class Cell(pygame.sprite.Sprite):
                            ["shallow_sea2", 10]])
 
         beach = []
-        add (beach, [["beach0", 70],
-                     ["beach1", 20],
-                     ["beach2", 10]])
+        add (beach, [["beach0", 90],
+                     ["beach1", 10],
+                     ["beach2", 0]])
         
         grassland = []
         add (grassland, [["grassland0", 80],
@@ -68,10 +68,9 @@ class Cell(pygame.sprite.Sprite):
                          ["grassland3", 5]])
         
         desert = []
-        add (desert, [["desert0", 75],
+        add (desert, [["desert0", 88],
                       ["desert1", 10],
-                      ["desert2", 10],
-                      ["desert3", 5]])
+                      ["desert2", 2]])
     
         badlands = []
         add (badlands, [["badlands0", 80],
@@ -97,6 +96,13 @@ class Cell(pygame.sprite.Sprite):
             return
         elif self.value == 4: key = "rune_chest"
         elif self.value == 5: key = "rune_beacon"
+        elif self.value == 6:
+            key = "desert3"
+            if self.is_dragon:
+                self.image = Cell.textures["desert3"]
+            else:
+                self.image = pygame.Surface((self.side_length, self.side_length), pygame.SRCALPHA)
+            return
         
         # terrain
         elif self.value < ABYSS: key = "abyss"
