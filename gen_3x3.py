@@ -2,7 +2,20 @@ from cell import Cell
 import random
 from constants import *
 
-def gen_3x3 (cell_list, cell_value, min_val, max_val, rate, block_rad=2):
+# count how many of the surrounding 8 cells are its neighbours
+def alike_neighbour (cell_list, x, y):
+    count = 0
+    for i in range (max(0, x - 1), min(SIZE_X - 1, x + 2)):
+        for j in range (max(0, y - 1), min(SIZE_Y - 1, y + 2)):
+            if x == i and y == j:
+                continue
+            if cell_list[x][y].terrain == cell_list[i][j].terrain:
+                count += 1
+
+    return count
+
+
+def gen_3x3 (cell_list, cell_value, cell_terrain, rate, block_rad=2, min_neighbours=0):
     for i in range (1, SIZE_X - 1):
         for j in range (1, SIZE_Y - 1):
             cell = cell_list[i][j]
@@ -12,7 +25,7 @@ def gen_3x3 (cell_list, cell_value, min_val, max_val, rate, block_rad=2):
 
             rng = random.random()
 
-            if ((cell.value > min_val and cell.value < max_val)) and rng < rate:
+            if ((cell.terrain == cell_terrain) and rng < rate) and alike_neighbour(cell_list, i, j) >= min_neighbours:
                 cell.spawn_proof = True
                 cell.is_3x3 = True
 
@@ -22,7 +35,7 @@ def gen_3x3 (cell_list, cell_value, min_val, max_val, rate, block_rad=2):
                         if cell_list[x][y].value % 1 != 0:
                             cell_list[x][y].update_value(cell_value)
 
-                print(f"CELL {cell.value} SPAWNED AT [{i}, {j}]")
+                print(f"CELL {cell.value} SPAWNED AT [{i}, {j}] WITH {alike_neighbour(cell_list, i, j)} NEIGHBOURS")
                     
                 #spawn_proof
                 for x in range (max (0, i - 2), min (SIZE_X - 1, i + 3)):

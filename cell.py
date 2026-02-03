@@ -14,6 +14,7 @@ class Cell(pygame.sprite.Sprite):
         self.tl_y = tl_y
         self.side_length = side_length
         self.value = value
+        self.terrain = ""
 
         #status flags
         self.is_3x3 = False
@@ -22,7 +23,7 @@ class Cell(pygame.sprite.Sprite):
         self.is_base = False
 
         self.block = []
-        add(self.block, [[False, 10]])
+        add(self.block, [[False, 20]])
         self.spawn_proof = False
 
 
@@ -134,14 +135,30 @@ class Cell(pygame.sprite.Sprite):
 
 
         # terrain
-        elif self.value < ABYSS: key = "abyss"
-        elif self.value < DEEP_SEA: key = random.choice(deep_sea)
-        elif self.value < SHALLOW_SEA: key = random.choice(shallow_sea)
-        elif self.value < BEACH: key = random.choice(beach)
-        elif self.value < GRASSLAND: key = random.choice(grassland)
-        elif self.value < DESERT: key = random.choice(desert)
-        elif self.value < BADLANDS: key = random.choice(badlands)
-        else:                    key = "lava"
+        elif self.value < ABYSS: 
+            key = "abyss"
+            self.terrain = "abyss"
+        elif self.value < DEEP_SEA: 
+            key = random.choice(deep_sea)
+            self.terrain = "deep_sea"
+        elif self.value < SHALLOW_SEA: 
+            key = random.choice(shallow_sea)
+            self.terrain = "shallow_sea"
+        elif self.value < BEACH: 
+            key = random.choice(beach)
+            self.terrain = "beach"
+        elif self.value < GRASSLAND: 
+            key = random.choice(grassland)
+            self.terrain = "grassland"
+        elif self.value < DESERT: 
+            self.terrain = "shallow_sea"
+            key = random.choice(desert)
+        elif self.value < BADLANDS:
+            key = random.choice(badlands)
+            self.terrain = "badlands"
+        else:                    
+            key = "lava"
+            self.terrain = "badlands"
 
         # assign the image from the pre-loaded dictionary
         if key in Cell.textures:
