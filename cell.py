@@ -1,5 +1,3 @@
-# EVERY CELL IS MODELLED HERE
-
 import pygame
 from constants import *
 import random
@@ -30,9 +28,7 @@ TERRAIN_VARIANTS = {
                   ["abyss2", 5]]
 }
 
-
 class Cell(pygame.sprite.Sprite):
-    #this dictionary will be filled by main.py
     textures = {} 
 
     def __init__(self, tl_x, tl_y, side_length, value, font):
@@ -41,23 +37,12 @@ class Cell(pygame.sprite.Sprite):
         self.side_length = side_length
         self.value = value
         self.terrain = ""
-
-        #status flags
         self.is_3x3 = False
-        self.dragon_in_range = False
-        self.is_rune = False
-        self.is_base = False
-
-        self.block = []
-        add(self.block, [[False, 20]])
+        self.block = [False] * 21
         self.spawn_proof = False
-
-
         self.cx = 0
         self.cy = 0
         self.font = font
-        
-        # default placeholder surface
         self.image = pygame.Surface((side_length, side_length))
         
         if hasattr(self, "containers"):
@@ -73,70 +58,75 @@ class Cell(pygame.sprite.Sprite):
         else:
             screen.blit(self.image, (self.tl_x, self.tl_y))
     
-    def update_value(self, new_value):
+    def update_value(self, new_value, force_terrain=None):
         self.value = new_value
         key = None
 
-        # int noise values
+        if force_terrain:
+            self.terrain = force_terrain
+
+        if self.value == 10 and self.is_3x3:
+            variants = []
+            add(variants, TERRAIN_VARIANTS.get(self.terrain, [["deep_sea0", 100]]))
+            bg_key = random.choice(variants)
+            
+            if bg_key in Cell.textures and "shark" in Cell.textures:
+                bg_img = Cell.textures[bg_key]
+                bg_img = pygame.transform.rotate(bg_img, random.choice([0, 90, 180, 270]))
+                
+                shark_img = Cell.textures["shark"]
+                
+                shark_rotation = random.choice([0, 90, 180, 270])
+                shark_img = pygame.transform.rotate(shark_img, shark_rotation)
+                
+                composite = pygame.Surface(shark_img.get_size(), pygame.SRCALPHA)
+                composite.blit(bg_img, (self.side_length, self.side_length))
+                composite.blit(shark_img, (0, 0))
+                
+                self.image = composite
+                return 
+            
         if isinstance(self.value, int) or self.value == 0:
             special_keys = {
-                0: "base",
+                0: "base", 
                 1: "spawn", 
                 2: "rune_chest", 
                 3: "rune_beacon",
                 4: "fire_dragon", 
-                5: "deep_sea_dragon",
+                5: "deep_sea_dragon", 
                 6: "badlands_3x3",
                 7: "desert_3x3", 
                 8: "grassland_3x3", 
                 9: "beach_3x3", 
-                10: "shallow_sea_3x3", 
-                11: "deep_sea_3x3"
+                10: "shark"
             }
             key = special_keys.get(self.value)
             
-            # 3x3 logic
-            if 4 <= self.value <= 11:
+            if 4 <= self.value <= 9: 
                 if not self.is_3x3:
                     self.image = pygame.Surface((self.side_length, self.side_length), pygame.SRCALPHA)
                     return
-        
-        # float noise values
         else:
-            if self.value < ABYSS: 
-                self.terrain = "abyss"
-            elif self.value < DEEP_SEA: 
-                self.terrain = "deep_sea"
-            elif self.value < SHALLOW_SEA: 
-                self.terrain = "shallow_sea"
-            elif self.value < BEACH: 
-                self.terrain = "beach"
-            elif self.value < GRASSLAND: 
-                self.terrain = "grassland"
-            elif self.value < DESERT: 
-                self.terrain = "desert"
-            elif self.value < BADLANDS:
-                self.terrain = "badlands"
-            else:
-                self.terrain, key = "lava", "lava"
+            if self.value < ABYSS: self.terrain = "abyss"
+            elif self.value < DEEP_SEA: self.terrain = "deep_sea"
+            elif self.value < SHALLOW_SEA: self.terrain = "shallow_sea"
+            elif self.value < BEACH: self.terrain = "beach"
+            elif self.value < GRASSLAND: self.terrain = "grassland"
+            elif self.value < DESERT: self.terrain = "desert"
+            elif self.value < BADLANDS: self.terrain = "badlands"
+            else: self.terrain, key = "lava", "lava"
 
-            if key is None:
-                variants = []
-                add(variants, TERRAIN_VARIANTS[self.terrain])
-                key = random.choice(variants)
+        if (key is None) or (self.value == 10 and not self.is_3x3):
+            variants = []
+            add(variants, TERRAIN_VARIANTS.get(self.terrain, [["deep_sea0", 100]]))
+            key = random.choice(variants)
 
         if key in Cell.textures:
             original_img = Cell.textures[key]
-                        
             fixed_orientation = ["base", "spawn", "rune_chest", "rune_beacon", "fire_dragon", "deep_sea_dragon",
                                  "abyss", "abyss0", "abyss1", "abyss2"]
             
             if key in fixed_orientation:
                 self.image = original_img
             else:
-                rotation_angle = random.choice([0, 90, 180, 270])
-                self.image = pygame.transform.rotate(original_img, rotation_angle)
-
-
-
-        
+                self.image = pygame.transform.rotate(original_img, random.choice([0, 90, 180, 270]))

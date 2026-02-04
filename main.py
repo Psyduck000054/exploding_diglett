@@ -24,13 +24,8 @@ def main ():
     cellList = []
     vectorList = []
 
-    #IMAGES LOAD
-    # --- ADD THIS BEFORE draw_grid(SIZE_X, SIZE_Y) ---
-
     def load_all_textures():
         tex = {}
-
-        # multiple images for one cell
 
         files = {
             "base": "spawn_base.png",
@@ -45,13 +40,10 @@ def main ():
             "deep_sea0": "deep_sea0.png",
             "deep_sea1": "deep_sea1.png",
             "deep_sea2": "deep_sea2.png",
-            "deep_sea_3x3": "deep_sea_3x3.png",
-
 
             "shallow_sea0": "shallow_sea0.png",
             "shallow_sea1": "shallow_sea1.png",
             "shallow_sea2": "shallow_sea2.png",
-            "shallow_sea_3x3": "shallow_sea_3x3.png",
 
             "beach0": "beach0.png",
             "beach1": "beach1.png",
@@ -77,7 +69,8 @@ def main ():
             "lava": "lava.png",
 
             "fire_dragon": "fire_dragon.png",
-            "deep_sea_dragon": "deep_sea_dragon.png"
+            "deep_sea_dragon": "deep_sea_dragon.png",
+            "shark": "shark_invis.png"
         }
         
         for key, filename in files.items():
@@ -85,7 +78,7 @@ def main ():
                 img = pygame.image.load(f"assets/{filename}").convert_alpha()
 
                 enlarged_list = ["fire_dragon", "deep_sea_dragon", "desert_3x3", "badlands_3x3", "grassland_3x3", "beach_3x3", 
-                                 "shallow_sea_3x3", "deep_sea_3x3"]
+                                 "shallow_sea_3x3", "deep_sea_3x3", "shark"]
                 # scale items in enlarged_list to 3x3 cells, everything else to 1x1
                 if key in enlarged_list:
                     tex[key] = pygame.transform.scale(img, (SIDE_LENGTH * 3, SIDE_LENGTH * 3))
@@ -104,7 +97,7 @@ def main ():
         
         return tex
 
-        # Initialize the textures
+        # initialize the textures
     Cell.textures = load_all_textures()
 
     #DRAW GRID
@@ -275,16 +268,14 @@ def main ():
                         cellList[x][y].spawn_proof = True
     
     
-    gen_3x3(cellList, 4, "lava", DRAGON_SPAWN_RATE, DRAGON_SEPARATION)
-    gen_3x3(cellList, 5, "abyss", DRAGON_SPAWN_RATE, DRAGON_SEPARATION)
-    gen_3x3(cellList, 6, "badlands", MINESHAFT_SPAWN_RATE, MINESHAFT_SEPARATION, 4)
-    gen_3x3(cellList, 7, "desert", OASIS_SPAWN_RATE, OASIS_SEPARATION, 6)
-    gen_3x3(cellList, 8, "grassland", FRUIT_TREE_SPAWN_RATE, FRUIT_TREE_SEPARATION, 8)
-    gen_3x3(cellList, 9, "beach", COCONUT_CANOPY_SPAWN_RATE, COCONUT_CANOPY_SEPARATION, 6)
-    gen_3x3(cellList, 10, "shallow_sea", SHARK_SPAWN_RATE, SHARK_SEPARATION, 6)
-    gen_3x3(cellList, 11, "deep_sea", SHARK_SPAWN_RATE, SHARK_SEPARATION, 6)
-
-
+    gen_3x3(cellList, 4, ["lava"], DRAGON_SPAWN_RATE, DRAGON_SEPARATION)
+    gen_3x3(cellList, 5, ["abyss"], DRAGON_SPAWN_RATE, DRAGON_SEPARATION)
+    gen_3x3(cellList, 6, ["badlands"], MINESHAFT_SPAWN_RATE, MINESHAFT_SEPARATION, 4)
+    gen_3x3(cellList, 7, ["desert"], OASIS_SPAWN_RATE, OASIS_SEPARATION, 6)
+    gen_3x3(cellList, 8, ["grassland"], FRUIT_TREE_SPAWN_RATE, FRUIT_TREE_SEPARATION, 8)
+    gen_3x3(cellList, 9, ["beach"], COCONUT_CANOPY_SPAWN_RATE, COCONUT_CANOPY_SEPARATION, 6)
+    gen_3x3(cellList, 10, ["shallow_sea", "deep_sea", "abyss"], SHARK_SPAWN_RATE, SHARK_SEPARATION, 8, True)
+    
     # RUNNING
     running = True
     while running:
@@ -297,8 +288,15 @@ def main ():
 
         screen.fill("black")
         
+        # draw all standard tiles first
         for object in drawable:
-            object.draw(screen)
+            if hasattr(object, "is_3x3") and not object.is_3x3:
+                object.draw(screen)
+        
+        # then draw 3x3 objects on top
+        for object in drawable:
+            if getattr(object, "is_3x3", False):
+                object.draw(screen)
 
         pygame.display.flip()
 

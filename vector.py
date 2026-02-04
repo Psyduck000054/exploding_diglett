@@ -24,13 +24,3 @@ class Unit_Vector(pygame.sprite.Sprite):
         #position in chunk
         self.cx = 0
         self.cy = 0
-
-    def draw(self, screen):
-        """rad = math.radians(self.bearing)
-
-        x_head = self.x_base + VECTOR_LENGTH * math.sin(rad)
-        y_head = self.y_base - VECTOR_LENGTH * math.cos(rad)
-
-        pygame.draw.line(screen, "magenta", (self.x_base, self.y_base), (x_head, y_head), 2)
-        pygame.draw.circle(screen, "magenta", (int(x_head), int(y_head)), 2)"""
-        pass
