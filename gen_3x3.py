@@ -45,4 +45,6 @@ def gen_3x3 (cell_list, cell_value, cell_terrain, rate, block_rad=2, min_neighbo
                 #block same structure from spawning
                 for x in range (max (0, i - block_rad), min(SIZE_X, i + block_rad + 1)):
                     for y in range (max (0, j - block_rad), min(SIZE_Y, j + block_rad + 1)):
+                        if 10 <= cell_value <= 11:
+                            cell_list[x][y].block[21 - cell_value] = True
                         cell_list[x][y].block[cell_value] = True

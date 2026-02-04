@@ -38,15 +38,20 @@ def main ():
             "rune_chest": "rune_chest.png",
             "rune_beacon": "rune_beacon.png",
             
-            "abyss": "abyss.png", 
-            
+            "abyss0": "abyss0.png", 
+            "abyss1": "abyss1.png", 
+            "abyss2": "abyss2.png", 
+
             "deep_sea0": "deep_sea0.png",
             "deep_sea1": "deep_sea1.png",
             "deep_sea2": "deep_sea2.png",
+            "deep_sea_3x3": "deep_sea_3x3.png",
+
 
             "shallow_sea0": "shallow_sea0.png",
             "shallow_sea1": "shallow_sea1.png",
             "shallow_sea2": "shallow_sea2.png",
+            "shallow_sea_3x3": "shallow_sea_3x3.png",
 
             "beach0": "beach0.png",
             "beach1": "beach1.png",
@@ -79,7 +84,8 @@ def main ():
             try:
                 img = pygame.image.load(f"assets/{filename}").convert_alpha()
 
-                enlarged_list = ["fire_dragon", "deep_sea_dragon", "desert_3x3", "badlands_3x3", "grassland_3x3", "beach_3x3"]
+                enlarged_list = ["fire_dragon", "deep_sea_dragon", "desert_3x3", "badlands_3x3", "grassland_3x3", "beach_3x3", 
+                                 "shallow_sea_3x3", "deep_sea_3x3"]
                 # scale items in enlarged_list to 3x3 cells, everything else to 1x1
                 if key in enlarged_list:
                     tex[key] = pygame.transform.scale(img, (SIDE_LENGTH * 3, SIDE_LENGTH * 3))
@@ -273,11 +279,12 @@ def main ():
     gen_3x3(cellList, 5, "abyss", DRAGON_SPAWN_RATE, DRAGON_SEPARATION)
     gen_3x3(cellList, 6, "badlands", MINESHAFT_SPAWN_RATE, MINESHAFT_SEPARATION, 4)
     gen_3x3(cellList, 7, "desert", OASIS_SPAWN_RATE, OASIS_SEPARATION, 6)
-    gen_3x3(cellList, 8, "grassland", FRUIT_TREE_SPAWN_RATE, FRUIT_TREE_SEPARATION, 6)
+    gen_3x3(cellList, 8, "grassland", FRUIT_TREE_SPAWN_RATE, FRUIT_TREE_SEPARATION, 8)
     gen_3x3(cellList, 9, "beach", COCONUT_CANOPY_SPAWN_RATE, COCONUT_CANOPY_SEPARATION, 6)
+    gen_3x3(cellList, 10, "shallow_sea", SHARK_SPAWN_RATE, SHARK_SEPARATION, 6)
+    gen_3x3(cellList, 11, "deep_sea", SHARK_SPAWN_RATE, SHARK_SEPARATION, 6)
 
 
-    
     # RUNNING
     running = True
     while running:
