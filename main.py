@@ -5,6 +5,14 @@ from constants import *
 from vector import Unit_Vector
 from vectormath import *
 from gen_3x3 import *
+from hash import *
+from hash_rng import temu_rng
+
+# seed initialization
+seed = random.randint(INT64_MIN, INT64_MAX)
+print (seed)
+
+rng = temu_rng(seed)
 
 def main ():
     pygame.init()
@@ -118,7 +126,8 @@ def main ():
                 if (i != size_x and j != size_y):
                     cellCol.append(Cell(x, y, SIDE_LENGTH, 0, font))
                 if (i % MIN_CHUNK_SIZE == 0 and j % MIN_CHUNK_SIZE == 0):
-                    vectorCol.append(Unit_Vector(x, y, random.randint(0, 359)))
+                    angle = rng.randint(0, 359)
+                    vectorCol.append(Unit_Vector(x, y, angle))
             if i < size_x:
                 cellList.append(cellCol)
             cellCol = []
@@ -158,7 +167,7 @@ def main ():
             for i in range(v_cols):
                 row = []
                 for j in range(v_rows):
-                    angle = math.radians(random.randint(0, 359))
+                    angle = math.radians(rng.randint(0, 359))
                     row.append((math.sin(angle), math.cos(angle)))
                 gradients.append(row)
 
@@ -232,7 +241,7 @@ def main ():
     rangle_rad = math.radians(rangle_deg)
 
     # a random start bearing
-    start_bearing_deg = random.randint(0, round(rangle_deg))
+    start_bearing_deg = rng.randint(0, round(rangle_deg))
     bearing_rad = math.radians(start_bearing_deg)
 
     mid_cell_x = SIZE_X // 2
@@ -244,14 +253,15 @@ def main ():
         cellList[mid_cell_x + player_init_vector_x][mid_cell_y + player_init_vector_y].update_value(1)
         bearing_rad += rangle_rad
     
+    # RUNE SPAWN
     for i in range (1, SIZE_X - 1):
         for j in range (1, SIZE_Y - 1):
             if cellList[i][j].spawn_proof == 1: #no dragon or base
                 continue
-            rng = random.random()
+            luck = rng.random()
             cell = cellList[i][j]
 
-            if (cell.value > SHALLOW_SEA and cell.value < DESERT) and rng < RUNE_SPAWN_RATE:
+            if (cell.value > SHALLOW_SEA and cell.value < DESERT) and luck < RUNE_SPAWN_RATE:
                 cell.spawn_proof = True
                 cell.update_value(2)
                 print(f"CELL 2 SPAWNED AT [{i}, {j}]")
@@ -268,13 +278,13 @@ def main ():
                         cellList[x][y].spawn_proof = True
     
     
-    gen_3x3(cellList, 4, ["lava"], DRAGON_SPAWN_RATE, DRAGON_SEPARATION)
-    gen_3x3(cellList, 5, ["abyss"], DRAGON_SPAWN_RATE, DRAGON_SEPARATION)
-    gen_3x3(cellList, 6, ["badlands"], MINESHAFT_SPAWN_RATE, MINESHAFT_SEPARATION, 4)
-    gen_3x3(cellList, 7, ["desert"], OASIS_SPAWN_RATE, OASIS_SEPARATION, 6)
-    gen_3x3(cellList, 8, ["grassland"], FRUIT_TREE_SPAWN_RATE, FRUIT_TREE_SEPARATION, 8)
-    gen_3x3(cellList, 9, ["beach"], COCONUT_CANOPY_SPAWN_RATE, COCONUT_CANOPY_SEPARATION, 6)
-    gen_3x3(cellList, 10, ["shallow_sea", "deep_sea", "abyss"], SHARK_SPAWN_RATE, SHARK_SEPARATION, 8, True)
+    gen_3x3(cellList, 4, ["lava"], DRAGON_SPAWN_RATE, rng, DRAGON_SEPARATION)
+    gen_3x3(cellList, 5, ["abyss"], DRAGON_SPAWN_RATE, rng, DRAGON_SEPARATION)
+    gen_3x3(cellList, 6, ["badlands"], MINESHAFT_SPAWN_RATE, rng, MINESHAFT_SEPARATION, 4)
+    gen_3x3(cellList, 7, ["desert"], OASIS_SPAWN_RATE, rng, OASIS_SEPARATION, 6)
+    gen_3x3(cellList, 8, ["grassland"], FRUIT_TREE_SPAWN_RATE, rng, FRUIT_TREE_SEPARATION, 8)
+    gen_3x3(cellList, 9, ["beach"], COCONUT_CANOPY_SPAWN_RATE, rng, COCONUT_CANOPY_SEPARATION, 6)
+    gen_3x3(cellList, 10, ["shallow_sea", "deep_sea", "abyss"], SHARK_SPAWN_RATE, rng, SHARK_SEPARATION, 8, True)
     
     # RUNNING
     running = True

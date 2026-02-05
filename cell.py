@@ -2,6 +2,7 @@ import pygame
 from constants import *
 import random
 from add import *
+from hash_rng import *
 
 TERRAIN_VARIANTS = {
         "deep_sea": [["deep_sea0", 96], 
@@ -21,8 +22,8 @@ TERRAIN_VARIANTS = {
                    ["desert1", 8], 
                    ["desert2", 2]],
         "badlands": [["badlands0", 90], 
-                     ["badlands1", 5], 
-                     ["badlands2", 5]],
+                      ["badlands1", 5], 
+                      ["badlands2", 5]],
         "abyss": [["abyss0", 90], 
                   ["abyss1", 5], 
                   ["abyss2", 5]]
@@ -58,26 +59,40 @@ class Cell(pygame.sprite.Sprite):
         else:
             screen.blit(self.image, (self.tl_x, self.tl_y))
     
-    def update_value(self, new_value, force_terrain=None):
+    def update_value(self, new_value, rng_system=None, force_terrain=None):
         self.value = new_value
         key = None
 
         if force_terrain:
             self.terrain = force_terrain
 
+        # rng
+        def get_choice(items):
+            if rng_system:
+                return rng_system.choice(items)
+            return random.choice(items)
+
+        def get_int_choice(options): 
+            if rng_system:
+                return rng_system.choice(options)
+            return random.choice(options)
+
+        # shark
         if self.value == 10 and self.is_3x3:
             variants = []
             add(variants, TERRAIN_VARIANTS.get(self.terrain, [["deep_sea0", 100]]))
-            bg_key = random.choice(variants)
+            bg_key = get_choice(variants) 
             
             if bg_key in Cell.textures and "shark" in Cell.textures:
                 bg_img = Cell.textures[bg_key]
-                bg_img = pygame.transform.rotate(bg_img, random.choice([0, 90, 180, 270]))
+                bg_img = pygame.transform.rotate(bg_img, get_int_choice([0, 90, 180, 270]))
                 
                 shark_img = Cell.textures["shark"]
+                shark_rotation = get_int_choice([0, 90, 180, 270])
                 
-                shark_rotation = random.choice([0, 90, 180, 270])
-                shark_img = pygame.transform.rotate(shark_img, shark_rotation)
+                # --- FIXED LINE BELOW ---
+                shark_img = pygame.transform.rotate(shark_img, shark_rotation) 
+                # ------------------------
                 
                 composite = pygame.Surface(shark_img.get_size(), pygame.SRCALPHA)
                 composite.blit(bg_img, (self.side_length, self.side_length))
@@ -85,20 +100,13 @@ class Cell(pygame.sprite.Sprite):
                 
                 self.image = composite
                 return 
-            
+        
+        # special tiles
         if isinstance(self.value, int) or self.value == 0:
             special_keys = {
-                0: "base", 
-                1: "spawn", 
-                2: "rune_chest", 
-                3: "rune_beacon",
-                4: "fire_dragon", 
-                5: "deep_sea_dragon", 
-                6: "badlands_3x3",
-                7: "desert_3x3", 
-                8: "grassland_3x3", 
-                9: "beach_3x3", 
-                10: "shark"
+                0: "base", 1: "spawn", 2: "rune_chest", 3: "rune_beacon",
+                4: "fire_dragon", 5: "deep_sea_dragon", 6: "badlands_3x3",
+                7: "desert_3x3", 8: "grassland_3x3", 9: "beach_3x3", 10: "shark"
             }
             key = special_keys.get(self.value)
             
@@ -119,7 +127,7 @@ class Cell(pygame.sprite.Sprite):
         if (key is None) or (self.value == 10 and not self.is_3x3):
             variants = []
             add(variants, TERRAIN_VARIANTS.get(self.terrain, [["deep_sea0", 100]]))
-            key = random.choice(variants)
+            key = get_choice(variants)
 
         if key in Cell.textures:
             original_img = Cell.textures[key]
@@ -129,4 +137,4 @@ class Cell(pygame.sprite.Sprite):
             if key in fixed_orientation:
                 self.image = original_img
             else:
-                self.image = pygame.transform.rotate(original_img, random.choice([0, 90, 180, 270]))
+                self.image = pygame.transform.rotate(original_img, get_int_choice([0, 90, 180, 270]))
