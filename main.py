@@ -8,7 +8,7 @@ from gen_3x3 import *
 from hash import *
 from hash_rng import temu_rng
 
-# seed initialization
+# seed initialization [CHANGE SEED HERE]
 seed = random.randint(INT64_MIN, INT64_MAX)
 print (seed)
 

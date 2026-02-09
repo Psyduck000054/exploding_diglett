@@ -90,9 +90,7 @@ class Cell(pygame.sprite.Sprite):
                 shark_img = Cell.textures["shark"]
                 shark_rotation = get_int_choice([0, 90, 180, 270])
                 
-                # --- FIXED LINE BELOW ---
                 shark_img = pygame.transform.rotate(shark_img, shark_rotation) 
-                # ------------------------
                 
                 composite = pygame.Surface(shark_img.get_size(), pygame.SRCALPHA)
                 composite.blit(bg_img, (self.side_length, self.side_length))
